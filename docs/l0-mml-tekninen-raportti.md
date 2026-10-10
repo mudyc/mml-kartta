@@ -206,11 +206,39 @@ Luonnonsuojelutyylin ensimmäinen versio maksoi **73,6 MB**, koska viisi kerrost
 
 Korjaus: luokkasuodatus `where`stä `having`iin eli selainpuolelle, ja samanlaisten lausekkeiden poisto kyselystä. **73,6 → 23,1 MB**, lausekkeita 6.
 
-Sääntö: `where` sopii kun suodatin pienentää luettavaa aluetta (klusterointiavain, kokoelma). `having` sopii kun kerrokset jakavat saman kokoelman — yksi haku, jako selaimessa.
+Sääntö: `where` sopii kun suodatin pienentää luettavaa aluetta (klusterointiavain, kokoelma). `having` sopii kun kerrokset jakavat saman kokoelman — yksi haku, jako selaimessa. Huomaa kuitenkin että se siirtää työn eikä poista sitä: tavuja säästyy, suoritusaikaa ei. Mitattu hinta on luvussa “Mitä asiakaspuolen suodatus maksaa”.
 
 ## Hakulausekkeita
 
-Kyselykieli on Elasticsearchin osajoukko. Alla todellisia lausekkeita tästä työstä, mitattuine kustannuksineen.
+Suodatustasoja on kaksi, ja ne on helppo sekoittaa toisiinsa. **Indeksin kyselykieli** on Elasticsearchin osajoukko ja kulkee verkon yli. **Karttatyylin `having` ei ole osa sitä lainkaan** — se on selaimessa ajettava suodatin, joka toimii vasta kun tavut ovat jo tulleet.
+
+### Kaksi suodatustasoa
+
+| | missä ajetaan | mitä osaa | mitä säästää |
+| --- | --- | --- | --- |
+| indeksin kysely | palvelimella, ennen tavuja | `bool`/`should`/`filter`, `terms`, `range`, `aggs`, `size` | lukualue |
+| tyylin `where` | käännetään yllä olevaksi kyselyksi | `terms` indeksoidulle kentälle | tavuja, jos suodatin osuu klusterointiin |
+| tyylin `having` | selaimessa, haun jälkeen | `in`, `endsWith`, `startsWith`, `gte`, `lte`, `gt`, `lt` | vain mustetta |
+
+`endsWith` ja `startsWith` eivät vastaa mitään indeksin kyselyssä. Niitä ei voi viedä sinne, koska muodossa on termihaku eikä sanahakua — ja juuri siksi paikannimien levinneisyyskartat ("mitkä nimet päättyvät sanaan *vuoma*") hakevat koko kokoelman ja karsivat selaimessa.
+
+### Mitä asiakaspuolen suodatus maksaa
+
+Mitattu nyppyläkartan kerroksilla, 170 519 nimeä, koodi poimittuna sanatarkasti sovelluksesta:
+
+| | aika | per tietue |
+| --- | --- | --- |
+| raaka `endsWith('tunturi')` | **1,1 ms** | 6 ns |
+| yksi kerros `matches()`:n kautta | 43,1 ms | 253 ns |
+| koko suodatus, 8 kerrosta | **96,0 ms** | 563 ns |
+
+**Vertailu itsessään on ilmainen**: 151 miljoonaa `endsWith`-vertailua sekunnissa, koska V8 vertaa lopusta alkaen eikä skannaa merkkijonoa. Kustannus on kääreessä: `Object.entries(L.having)` rakennetaan uudelleen jokaiselle tietueelle jokaisessa kerroksessa, `String(v).toLowerCase()` luo uuden merkkijonon joka kerta, ja `findIndex` käy kerrokset järjestyksessä läpi.
+
+96 ms on **enemmän kuin itse haku**: saman näkymän 45,9 MB tulee verkosta 20 ms:ssä. Esikäännetty suodatin (`Object.entries` kerran per kerros, pienaakkostus kerran per tietue) vie sen 49 ms:ään, mutta oikea korjaus on sama kuin kaikkialla muuallakin tässä työssä: jos valitsin olisi avaimessa, haettavia olisi 11 979 eikä 170 519, ja suodatus putoaisi samassa suhteessa ilman että koodiin kosketaan.
+
+### Esimerkkejä indeksin kyselykielestä
+
+Alla todellisia lausekkeita tästä työstä, mitattuine kustannuksineen.
 
 ### Näkymähaku: bbox Hilbert-välein
 
