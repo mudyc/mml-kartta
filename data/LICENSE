@@ -1,0 +1,35 @@
+Kartta-aineisto: CC BY 4.0
+==========================
+
+Tämän hakemiston aineisto (mtk-map.l0 ja sen osat) on johdettu
+Maanmittauslaitoksen avoimesta kartta-aineistosta. Lisenssi on
+Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0).
+
+    https://creativecommons.org/licenses/by/4.0/deed.fi
+    https://www.maanmittauslaitos.fi/avoindata-lisenssi-cc40
+
+LÄHDEMERKINTÄ
+-------------
+
+CC BY 4.0 vaatii lähdemerkinnän, josta ilmenee lisenssinantaja, aineiston
+nimi ja päivämäärä. Käytä tätä:
+
+    Sisältää Maanmittauslaitoksen Maastokartta 1:100 000 ja
+    Maastokartta 1:250 000 -aineistoa 10/2026.
+
+    Contains data from the National Land Survey of Finland
+    Topographic Map 1:100,000 and 1:250,000 datasets, 10/2026.
+
+Merkintä kuuluu näkyviin kaikkialle missä aineistoa tai siitä tehtyjä
+karttoja julkaistaan — myös kuvakaappauksiin ja esityksiin.
+
+AINEISTO
+--------
+
+Maastokartta vektorimuodossa, mittakaavat 1:100 000 ja 1:250 000.
+Ladattu 8.10.2026. Koordinaatisto EPSG:3067 (ETRS-TM35FIN).
+
+Artefakti on MUUNNOS, ei kopio: geometria on kvantisoitu metrin ruudukkoon
+(häviö enintään 0,500 m) ja osa attribuuteista on jätetty tallentamatta.
+Tämä on CC BY 4.0:n sallima muunnos, ja se on mainittava jos tarkkuudella
+on merkitystä käyttötarkoituksessa.

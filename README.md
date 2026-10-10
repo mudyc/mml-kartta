@@ -73,7 +73,18 @@ koska transport lukee kokonaispituuden siitä.
 
 MML:n maastokartta-aineisto vektorimuodossa, mittakaavat 1:100 000 ja 1:250 000,
 Shapefile. Koordinaatisto EPSG:3067 (ETRS-TM35FIN), yksikkö metri.
-Lisenssi: CC BY 4.0, lähde mainittava.
+Ladattu 8.10.2026.
+
+**Sisältää Maanmittauslaitoksen Maastokartta 1:100 000 ja Maastokartta
+1:250 000 -aineistoa 10/2026.** Tämä lähdemerkintä on CC BY 4.0:n vaatimus ja
+kuuluu näkyviin myös kuvakaappauksiin ja esityksiin. Ks. [`data/LICENSE`](data/LICENSE).
+
+## Lisenssit
+
+| | |
+| --- | --- |
+| koodi (`map-viz/`, `tools/`, `src/`, `test/`) | MIT — [`LICENSE`](LICENSE) |
+| kartta-aineisto (`data/`) | CC BY 4.0 — [`data/LICENSE`](data/LICENSE) |
 
 API-avain luetaan ympäristöstä (`~/.config/mml.env`, chmod 600). Avainta ei ole
 eikä tule tähän repoon.
