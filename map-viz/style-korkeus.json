@@ -1,0 +1,116 @@
+{
+  "_": [
+    "Korkeusvyöhykkeet korkeuskäyristä. Käyrän oma Korkeus-attribuutti värittää viivan,",
+    "joten gradientti syntyy käyräparvesta — ei täytetyistä vyöhykkeistä.",
+    "Suomenselkä näkyy Keski-Suomen pohjoisosassa leveänä vaaleana vyöhykkeenä.",
+    "colorBy: kenttä + pysäkit [arvo, väri]; väri interpoloidaan pysäkkien välillä."
+  ],
+  "view": {
+    "x": 400000,
+    "y": 7100000,
+    "mpp": 1400
+  },
+  "background": "#eef2f4",
+  "scales": [
+    {
+      "over": 0,
+      "use": "250k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "where": {
+        "Kohdeluokk": [
+          "44300"
+        ]
+      },
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#dde6ee"
+      }
+    },
+    {
+      "name": "Järvet",
+      "from": "VesiAlue",
+      "where": {
+        "Kohdeluokk": [
+          "36200",
+          "36211"
+        ]
+      },
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#cfdeea"
+      }
+    },
+    {
+      "name": "Korkeuskäyrät",
+      "from": "KorkeusViiva",
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "width": 0.8,
+        "colorBy": {
+          "field": "Korkeus",
+          "stops": [
+            [
+              0,
+              "#2f6b3f"
+            ],
+            [
+              80,
+              "#6e9a4e"
+            ],
+            [
+              160,
+              "#b9b464"
+            ],
+            [
+              240,
+              "#d3a257"
+            ],
+            [
+              340,
+              "#c0763e"
+            ],
+            [
+              480,
+              "#9c4f2e"
+            ],
+            [
+              700,
+              "#7a3b33"
+            ],
+            [
+              1300,
+              "#ffffff"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "name": "Kuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        400,
+        9999
+      ],
+      "draw": {
+        "line": "#00000018",
+        "width": 0.6
+      }
+    }
+  ],
+  "limit": 200000
+}

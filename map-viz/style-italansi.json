@@ -1,0 +1,385 @@
+{
+  "_": [
+    "Itä-länsikartta: saman käsitteen läntinen ja itäinen sana, asutusnimissä.",
+    "",
+    "Parit ja niiden tasapainotettu osuvuus (paras pystysuora jakoraja, ja kuinka",
+    "moni nimi osuu sen oikealle puolelle; tasapainotettu = keskiarvo molempien",
+    "luokkien osuvuudesta, jottei yleisemmän arvaaminen palkitse):",
+    "  -luoma / -puro       94 %   raja 348 km",
+    "  vähä- / pien-        90 %   raja 448 km",
+    "  -lammi / -lampi      88 %   raja 435 km",
+    "  iso- / suur-         85 %   raja 473 km",
+    "  -mäki / -vaara       83 %   raja 558 km",
+    "  -nummi / -kangas     79 %   raja 398 km",
+    "  -perä / -taus        79 %   raja 428 km",
+    "  -oja / -puro         77 %   raja 445 km",
+    "  yli- / ylä-          72 %   raja 470 km",
+    "Rajojen mediaani 445 km itäkoordinaattia.",
+    "",
+    "Pois jätetty: ali-/ala- (71 %, ja 71 vs 467 nimeä eli liian epätasapainoinen)",
+    "ja -maa/-salo (65 %). Mukana vain SAMAN käsitteen muunnelmat, ei eri sanoja:",
+    "-kulma/-taus sai 89 % mutta kulma ja taus eivät tarkoita samaa.",
+    "",
+    "Kaksi luokkaa -> hajautuva kaksiväripari, ei kategorista palettia.",
+    "ColorBrewer PuOr ääripäät; ero ΔE 29.9 normaalinäöllä, 28.3 / 30.7 / 28.0",
+    "protan-, deutan- ja tritanopialla.",
+    "",
+    "Perusosa (nimen loppu) ratkaisee ristiriidan: 'Isovaara' on itäinen, koska",
+    "vaara on itäinen perusosa, vaikka iso- on läntinen määre. Perusosakerrokset",
+    "piirretään ensin ja voittavat."
+  ],
+  "view": {
+    "x": 420000,
+    "y": 6960000,
+    "mpp": 800
+  },
+  "background": "#f4f3ef",
+  "limit": 400000,
+  "scales": [
+    {
+      "over": 0,
+      "use": "100k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "global": true,
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#e4e8ea"
+      }
+    },
+    {
+      "name": "Maa",
+      "from": "MaaAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.25,
+      "padMin": 1000,
+      "draw": {
+        "fill": "#fbfaf7"
+      }
+    },
+    {
+      "name": "Maakuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 10000,
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#0000001a",
+        "width": 1.0
+      }
+    },
+    {
+      "name": "LÄNSI: …mäki, …oja, …luoma, …nummi, …lammi, …perä",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "3010110",
+            "3020105",
+            "3030105",
+            "3010105",
+            "3020110",
+            "3030110"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "mäki",
+            "oja",
+            "luoma",
+            "nummi",
+            "lammi",
+            "perä"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#b35806",
+        "radius": [
+          [
+            5,
+            10
+          ],
+          [
+            20,
+            8
+          ],
+          [
+            80,
+            6
+          ],
+          [
+            300,
+            4
+          ],
+          [
+            900,
+            2.7
+          ],
+          [
+            1500,
+            2.2
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "ITÄ: …vaara, …puro, …kangas, …lampi, …taus",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "3010110",
+            "3020105",
+            "3030105",
+            "3010105",
+            "3020110",
+            "3030110"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "vaara",
+            "puro",
+            "kangas",
+            "lampi",
+            "taus"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#542788",
+        "radius": [
+          [
+            5,
+            10
+          ],
+          [
+            20,
+            8
+          ],
+          [
+            80,
+            6
+          ],
+          [
+            300,
+            4
+          ],
+          [
+            900,
+            2.7
+          ],
+          [
+            1500,
+            2.2
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "LÄNSI: Vähä-, Iso-, Yli-",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "3010110",
+            "3020105",
+            "3030105",
+            "3010105",
+            "3020110",
+            "3030110"
+          ]
+        },
+        "text": {
+          "startsWith": [
+            "vähä",
+            "iso",
+            "yli"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#b35806",
+        "radius": [
+          [
+            5,
+            10
+          ],
+          [
+            20,
+            8
+          ],
+          [
+            80,
+            6
+          ],
+          [
+            300,
+            4
+          ],
+          [
+            900,
+            2.7
+          ],
+          [
+            1500,
+            2.2
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "ITÄ: Pien-, Suur-, Ylä-",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "3010110",
+            "3020105",
+            "3030105",
+            "3010105",
+            "3020110",
+            "3030110"
+          ]
+        },
+        "text": {
+          "startsWith": [
+            "pien",
+            "suur",
+            "ylä"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#542788",
+        "radius": [
+          [
+            5,
+            10
+          ],
+          [
+            20,
+            8
+          ],
+          [
+            80,
+            6
+          ],
+          [
+            300,
+            4
+          ],
+          [
+            900,
+            2.7
+          ],
+          [
+            1500,
+            2.2
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "Kaupungit",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        400,
+        9999
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 8000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              320,
+              9
+            ],
+            [
+              380,
+              10
+            ],
+            [
+              720,
+              12
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#9aa09b",
+          "halo": "#f4f3efd0",
+          "haloWidth": 2.5
+        }
+      }
+    }
+  ]
+}

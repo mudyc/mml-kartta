@@ -1,0 +1,403 @@
+{
+  "_": [
+    "Nyppyläkartta: suomalaisten korkeuskohteiden nimet pisteinä, väri nimen",
+    "perussanan mukaan. Tämä on kielikartta — sanat jakautuvat maantieteellisesti.",
+    "Mitattu mediaanipohjoisuus: vuori 6 868 km, vaara 7 297 km, tunturi 7 476 km.",
+    "",
+    "Rajattu placetype-luokkiin 1010210 ja 1010205 (korkeuskohde), koska muuten",
+    "mukaan tulisi taloja ja kyliä: 'mäki'-loppuisista nimistä vain 44 % on",
+    "maastonimiä, loput Mäkelä-tyyppisiä asutusnimiä. 'Leppävaara' on Espoon",
+    "kaupunginosa eikä vaara.",
+    "",
+    "Värit haettu hakualgoritmilla, ei silmällä: kaikki 10 paria läpäisevät",
+    "OKLab-erotuksen >= 15 normaalinäöllä ja >= 8 protan-/deutan-/tritanopialla.",
+    "Huonoin pari: normaali 21.6, värisokeus 11.2.",
+    "",
+    "Mittakaava on lukittu 1:100 000:een kaikilla zoomeilla. 250k-aineistossa",
+    "sanasuhteet vääristyvät (vaara 2577 vs vuori 218), joten kartta valehtelisi",
+    "kauempaa katsottuna.",
+    "",
+    "mäki ja saamenkieliset et pyytänyt — ne ovat omina kerroksinaan ja helppo",
+    "poistaa. Ilman niitä Lappi näyttäisi lähes tyhjältä (vain 164 tunturia),",
+    "vaikka siellä on 488 várri, 229 oaivi ja 79 čohkka.",
+    "",
+    "Pisteen säde skaalautuu zoomin mukaan (pysäkit mpp:n suhteen): kaukaa 1.8 px,",
+    "lähellä 9 px, jotta väri erottuu. Tunturi on harvinaisin (164 kpl) ja saa isomman."
+  ],
+  "view": {
+    "x": 400000,
+    "y": 7150000,
+    "mpp": 1500
+  },
+  "background": "#f4f3ef",
+  "limit": 400000,
+  "scales": [
+    {
+      "over": 0,
+      "use": "100k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "global": true,
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#e4e8ea"
+      }
+    },
+    {
+      "name": "Maa",
+      "from": "MaaAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.25,
+      "padMin": 1000,
+      "draw": {
+        "fill": "#fbfaf7"
+      }
+    },
+    {
+      "name": "Maakuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 10000,
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#00000012",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "…vaara",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1010210",
+            "1010205"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "vaara",
+            "vaarat"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#244eb5",
+        "radius": [
+          [
+            5,
+            9
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            80,
+            5
+          ],
+          [
+            300,
+            3.4
+          ],
+          [
+            900,
+            2.2
+          ],
+          [
+            1500,
+            1.8
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…mäki",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1010210",
+            "1010205"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "mäki",
+            "mäet"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#58a936",
+        "radius": [
+          [
+            5,
+            9
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            80,
+            5
+          ],
+          [
+            300,
+            3.4
+          ],
+          [
+            900,
+            2.2
+          ],
+          [
+            1500,
+            1.8
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…vuori",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1010210",
+            "1010205"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "vuori",
+            "vuoret"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#b7376b",
+        "radius": [
+          [
+            5,
+            9
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            80,
+            5
+          ],
+          [
+            300,
+            3.4
+          ],
+          [
+            900,
+            2.2
+          ],
+          [
+            1500,
+            1.8
+          ]
+        ]
+      }
+    },
+    {
+      "name": "saamenkieliset (várri, oaivi, čohkka)",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1010210",
+            "1010205"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "várri",
+            "varri",
+            "oaivi",
+            "čohkka",
+            "duottar"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#585d19",
+        "radius": [
+          [
+            5,
+            9
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            80,
+            5
+          ],
+          [
+            300,
+            3.4
+          ],
+          [
+            900,
+            2.2
+          ],
+          [
+            1500,
+            1.8
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…tunturi",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1010210",
+            "1010205"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "tunturi",
+            "tunturit"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#a670f3",
+        "radius": [
+          [
+            5,
+            12
+          ],
+          [
+            20,
+            9.5
+          ],
+          [
+            80,
+            7
+          ],
+          [
+            300,
+            4.6
+          ],
+          [
+            900,
+            3
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Kaupungit",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        400,
+        9999
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 8000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              320,
+              9
+            ],
+            [
+              380,
+              10
+            ],
+            [
+              720,
+              12
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#9aa09b",
+          "halo": "#f4f3efd0",
+          "haloWidth": 2.5
+        }
+      }
+    }
+  ]
+}

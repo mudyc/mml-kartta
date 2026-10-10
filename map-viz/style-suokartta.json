@@ -1,0 +1,521 @@
+{
+  "_": [
+    "Suokartta: suonimien perusosat, väri etelästä pohjoiseen.",
+    "",
+    "KORJATTU: ensimmäisestä versiosta puuttuivat Kaldoaivin suot kokonaan, koska",
+    "(a) matsasin vain 'jänkkä' kahdella k:lla, en 'jänkä' yhdellä — 662 nimeä",
+    "    Sodankylän seudulla jäi pois, ja ne ovat eri sana eri alueelta kuin",
+    "    jänkkä (Tornionlaakso),",
+    "(b) saamenkieliset suosanat puuttuivat: jeaggi (sme, 151), jeggi (smn, 86),",
+    "    vuopmi (sme, 43), jeäʼǧǧ (sms, 4). Kaldoaivin alueen 94 suonimestä",
+    "    EI YHTÄÄN osunut kartan alkuperäisiin seitsemään sanaan.",
+    "(c) ruotsinkielinen -mossen (381, Ylistaro) puuttui, koska analyysini oli",
+    "    rajattu suomenkielisiin nimiin.",
+    "",
+    "Kattavuus nyt 16 308 / 21 213 = 76.9 % kaikista suonimistä. Loppu on pitkää",
+    "häntää ja 8.3 % on MML:n katkaisemia nimilappuja ('Stor-', 'Deger-'), jotka",
+    "ovat omina tietueinaan eivätkä pääty perusosaan.",
+    "",
+    "Ryhmiä on seitsemän koska BrBG kantaa juuri sen: 7 porrasta -> huonoin",
+    "värisokeus-ΔE 8.8, 8 porrasta -> 5.4, 10 porrasta -> 4.9 ja kaksi porrasta",
+    "jää kontrastiin 1.17 eli näkymättömiin.",
+    "",
+    "Mitattu mediaanipohjoisuus (km): rahka 6753, keidas 6885, mossen 6987,",
+    "neva 7036, korpi 7055, suo 7110, räme 7120, aapa 7430, jänkä 7451,",
+    "jänkkä 7458, vuoma 7486, saamenkieliset 7659."
+  ],
+  "view": {
+    "x": 400000,
+    "y": 7150000,
+    "mpp": 1500
+  },
+  "background": "#f4f3ef",
+  "limit": 400000,
+  "scales": [
+    {
+      "over": 0,
+      "use": "100k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "global": true,
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#e4e8ea"
+      }
+    },
+    {
+      "name": "Maa",
+      "from": "MaaAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.25,
+      "padMin": 1000,
+      "draw": {
+        "fill": "#fbfaf7"
+      }
+    },
+    {
+      "name": "Maakuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 10000,
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#00000012",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "…rahka, …keidas  (Varsinais-Suomi, Satakunta)  — 267 kpl",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "rahka",
+            "keidas"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#543005",
+        "radius": [
+          [
+            5,
+            11
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            80,
+            6.5
+          ],
+          [
+            300,
+            4.4
+          ],
+          [
+            900,
+            2.9
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "…mossen  (ruotsinkielinen Pohjanmaa)  — 381 kpl",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "mossen",
+            "mosse",
+            "mossarna"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#8c510a",
+        "radius": [
+          [
+            5,
+            11
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            80,
+            6.5
+          ],
+          [
+            300,
+            4.4
+          ],
+          [
+            900,
+            2.9
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "…neva, …räme  (Pohjanmaa)  — 3784 kpl",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "neva",
+            "räme"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#bf812d",
+        "radius": [
+          [
+            5,
+            7
+          ],
+          [
+            20,
+            5.5
+          ],
+          [
+            80,
+            4
+          ],
+          [
+            300,
+            2.6
+          ],
+          [
+            900,
+            1.8
+          ],
+          [
+            1500,
+            1.5
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "…suo, …korpi  (koko maa)  — 8584 kpl",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "suo",
+            "korpi"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#dfc27d",
+        "radius": [
+          [
+            5,
+            7
+          ],
+          [
+            20,
+            5.5
+          ],
+          [
+            80,
+            4
+          ],
+          [
+            300,
+            2.6
+          ],
+          [
+            900,
+            1.8
+          ],
+          [
+            1500,
+            1.5
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "…aapa  (Itä-Lappi)  — 1096 kpl",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "aapa"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#80cdc1",
+        "radius": [
+          [
+            5,
+            11
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            80,
+            6.5
+          ],
+          [
+            300,
+            4.4
+          ],
+          [
+            900,
+            2.9
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "…jänkä, …jänkkä, …vuoma  (Lappi)  — 1912 kpl",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "jänkä",
+            "jänkkä",
+            "vuoma"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#35978f",
+        "radius": [
+          [
+            5,
+            11
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            80,
+            6.5
+          ],
+          [
+            300,
+            4.4
+          ],
+          [
+            900,
+            2.9
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "…jeaggi, …jeggi, …vuopmi  (saamenkieliset)  — 284 kpl",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "jeaggi",
+            "jeggi",
+            "vuopmi",
+            "ǧǧ"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#01665e",
+        "radius": [
+          [
+            5,
+            11
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            80,
+            6.5
+          ],
+          [
+            300,
+            4.4
+          ],
+          [
+            900,
+            2.9
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ],
+        "stroke": "#00000045",
+        "strokeWidth": 0.7
+      }
+    },
+    {
+      "name": "Kaupungit",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        400,
+        9999
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 8000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              320,
+              9
+            ],
+            [
+              380,
+              10
+            ],
+            [
+              720,
+              12
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#9aa09b",
+          "halo": "#f4f3efd0",
+          "haloWidth": 2.5
+        }
+      }
+    }
+  ]
+}

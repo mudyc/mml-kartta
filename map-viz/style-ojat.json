@@ -1,0 +1,351 @@
+{
+  "_": [
+    "Ojakartta: alle 2 m virtavedet (Kohdeluokk 36311), 1 592 062 kohdetta.",
+    "",
+    "Yli 150 m/px: yksi läpikuultava piste per uoma sen keskipisteessä — tiheys",
+    "lukeutuu sävynä. 1.6 miljoonaa täyttä pistettä peittäisi maan umpeen.",
+    "Alle 150 m/px: uomat viivoina, väri MUTKAISUUDEN mukaan. Vaihtumiskohta on",
+    "mitattu: uoman keskipituus on 718 m, joka on 150 m/px:llä 4.8 pikseliä — sitä",
+    "kauempaa viiva ei ole viiva vaan piste.",
+    "",
+    "Mutkaisuus mitataan PAIKALLISESTI: uoma kävellään 300 metrin ikkunoissa ja",
+    "jokaisesta lasketaan kuljettu matka / linnuntie, lopuksi keskiarvo. Päästä",
+    "päähän laskettuna mittari hajoaa: pellon ympäri kaivetun ojan päät osuvat",
+    "lähes yhteen, linnuntie menee nollaan ja suora oja saa korkeimman",
+    "'luonnollisuus'-arvon. 170 lähes suljetun silmukan mediaani: 10.26 -> 1.20.",
+    "Ikkunoidun jakauma (14 885 uomaa): mediaani 1.05, p90 1.35, p99 2.23.",
+    "Oranssi = suora = kaivettu, violetti = mutkainen = luonnon uoma.",
+    "",
+    "VesiViiva@250k EI sisällä luokkaa 36311 lainkaan, joten mittakaava on lukittu",
+    "100k:hon kaikilla zoom-tasoilla.",
+    "",
+    "VARAUMA (MML:n valintakriteeri): 'Kaikki 2-5 m leveät tallennetaan. Metsämaan",
+    "alueella myös alle 2 m leveät. Maatalousmaan alueella tallennetaan alle 2 m",
+    "leveistä virtavesistä vain ne, joilla on merkitystä ojaverkon jatkuvuuden",
+    "kannalta.' Kartta näyttää METSÄOJITUKSEN tiheyden, ei pelto-ojitusta.",
+    "",
+    "Pistekerroksella pad=0: piste on keskipiste, joten ruudun ulkopuolisen",
+    "kohteen piste piirtyisi muutenkin kankaan ulkopuolelle. Viivakerros tarvitsee",
+    "marginaalin, koska pitkä uoma voi leikata ruudun vaikka keskipiste on ulkona.",
+    "rangeBudget 1024: ylihaku 450 km näkymässä 1.17x -> 1.07x."
+  ],
+  "view": {
+    "x": 400000,
+    "y": 7150000,
+    "mpp": 1500
+  },
+  "background": "#f6f5f1",
+  "limit": 2000000,
+  "scales": [
+    {
+      "over": 0,
+      "use": "100k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "global": true,
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#e6eaec"
+      }
+    },
+    {
+      "name": "Maa",
+      "from": "MaaAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.25,
+      "padMin": 1000,
+      "draw": {
+        "fill": "#fdfdfb"
+      }
+    },
+    {
+      "name": "Suo",
+      "from": "Maasto2Alue",
+      "mpp": [
+        0,
+        200
+      ],
+      "pad": 0.15,
+      "padMin": 500,
+      "draw": {
+        "fill": "#f0f2e9"
+      }
+    },
+    {
+      "name": "Järvet ja joet",
+      "from": "VesiAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.6,
+      "padMin": 25000,
+      "draw": {
+        "fill": "#e6eaec"
+      }
+    },
+    {
+      "name": "Virtavesi 2–5 m",
+      "from": "VesiViiva",
+      "where": {
+        "Kohdeluokk": [
+          "36312"
+        ]
+      },
+      "mpp": [
+        0,
+        300
+      ],
+      "pad": 0.25,
+      "padMin": 2000,
+      "legend": true,
+      "draw": {
+        "line": "#7b96a8",
+        "width": 1.3
+      }
+    },
+    {
+      "name": "Oja / puro alle 2 m — tiheys (yli 150 m/px)",
+      "from": "VesiViiva",
+      "where": {
+        "Kohdeluokk": [
+          "36311"
+        ]
+      },
+      "mpp": [
+        150,
+        9999
+      ],
+      "pad": 0,
+      "padMin": 0,
+      "legend": true,
+      "draw": {
+        "dot": "#1b5e3aa0",
+        "centroid": true,
+        "radius": [
+          [
+            150,
+            0.85
+          ],
+          [
+            400,
+            0.7
+          ],
+          [
+            900,
+            0.5
+          ],
+          [
+            1500,
+            0.38
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Oja / puro alle 2 m — suora = kaivettu, mutkainen = luonnon uoma (alle 150 m/px)",
+      "from": "VesiViiva",
+      "where": {
+        "Kohdeluokk": [
+          "36311"
+        ]
+      },
+      "mpp": [
+        0,
+        150
+      ],
+      "pad": 0.2,
+      "padMin": 1000,
+      "legend": true,
+      "draw": {
+        "line": "#9a8fc4",
+        "width": 0.9,
+        "sinuosity": [
+          [
+            1.0,
+            "#b35806"
+          ],
+          [
+            1.04,
+            "#e08214"
+          ],
+          [
+            1.09,
+            "#b3a9d0"
+          ],
+          [
+            1.2,
+            "#6a51a3"
+          ],
+          [
+            1.45,
+            "#3f007d"
+          ]
+        ],
+        "sinuosityWindow": 300
+      }
+    },
+    {
+      "name": "Maakuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        400,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 10000,
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#00000018",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "Kuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        0,
+        400
+      ],
+      "pad": 0.6,
+      "padMin": 10000,
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84113",
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#00000014",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "Nimistö",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        400
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 1000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              9
+            ],
+            [
+              240,
+              10
+            ],
+            [
+              320,
+              12
+            ],
+            [
+              480,
+              14
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#8a8f8a",
+          "halo": "#f6f5f1d0",
+          "haloWidth": 2.5
+        }
+      }
+    },
+    {
+      "name": "Kaupungit",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        400,
+        9999
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 8000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              320,
+              9
+            ],
+            [
+              380,
+              10
+            ],
+            [
+              720,
+              12
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#8d938e",
+          "halo": "#f6f5f1d0",
+          "haloWidth": 2.5
+        }
+      }
+    }
+  ],
+  "rangeBudget": 1024
+}

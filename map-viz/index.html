@@ -1,0 +1,623 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>L0 Map</title>
+<style>
+  :root { --ink:#15150f; --dim:#6d6b62; --rule:#dedbd4; --bg:#f6f5f2; --panel:#fcfcfb; --warn:#b3401f; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; overflow:hidden;
+              font:13.5px/1.5 -apple-system,"Segoe UI",system-ui,sans-serif; color:var(--ink); background:var(--bg); }
+  #wrap { display:grid; grid-template-columns:330px 1fr; height:100%; }
+  #side { border-right:1px solid var(--rule); background:var(--panel);
+          display:flex; flex-direction:column; min-height:0; }
+  #head { padding:14px 16px 10px; border-bottom:1px solid var(--rule); }
+  #body { padding:12px 16px 20px; overflow:auto; flex:1; min-height:0; }
+  #map { position:relative; }
+  canvas { display:block; width:100%; height:100%; cursor:grab; }
+  canvas.drag { cursor:grabbing; }
+  .legend { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
+  .legend div { display:flex; align-items:center; gap:8px; font-size:11px; line-height:1.25; }
+  .legend i { width:28px; height:18px; border-radius:3px; flex:none;
+              box-shadow:inset 0 0 0 1px #00000018; }
+  .legend i.dot { width:18px; height:18px; border-radius:50%; }
+  .legend i.line { width:28px; height:0; border-radius:0; box-shadow:none; }
+  .legend .off { opacity:.35; }
+  .stale { opacity:.65; font-style:italic; }
+  h1 { font-size:15px; margin:0 0 3px; }
+  .sub { color:var(--dim); font-size:11.5px; margin:0; }
+  label { display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;
+          color:var(--dim); margin:14px 0 4px; }
+  select,button,textarea { font:inherit; border:1px solid var(--rule); border-radius:6px;
+                           background:#fff; color:var(--ink); }
+  select,button { padding:5px 8px; } select { width:100%; }
+  .row { display:flex; gap:6px; } .row > * { flex:1; }
+  textarea { width:100%; height:260px; padding:8px; font:11.5px/1.45 ui-monospace,Menlo,monospace;
+             resize:vertical; white-space:pre; }
+  table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+  td { padding:2px 0; font-size:12.5px; } td:last-child { text-align:right; font-weight:600; }
+  .warn { color:var(--warn); }
+  #badge { position:absolute; top:10px; right:10px; background:var(--panel); border:1px solid var(--rule);
+           border-radius:8px; padding:5px 9px; font-size:11.5px; font-variant-numeric:tabular-nums; }
+  #cls { font-size:11.5px; max-height:150px; overflow:auto; }
+  #cls div { display:flex; justify-content:space-between; padding:1px 0; cursor:pointer; }
+  #cls div:hover { color:var(--warn); }
+  details summary { cursor:pointer; font-size:10.5px; text-transform:uppercase;
+                    letter-spacing:.05em; color:var(--dim); margin:14px 0 4px; }
+</style>
+<div id="wrap">
+  <div id="side">
+    <div id="head">
+      <h1>L0 Map</h1>
+      <p class="sub">Maastotietokanta 1:100&nbsp;000 ja 1:250&nbsp;000, haettuna artefaktista
+         HTTP&nbsp;Range&#8209;pyynnöillä. Ei hakupalvelinta.</p>
+    </div>
+    <div id="body">
+      <label>Tyyli</label>
+      <select id="preset"></select>
+
+      <label>Näkymä</label>
+      <div class="row"><button id="out">&minus;</button><button id="in">+</button><button id="home">Suomi</button></div>
+      <label>Zoomin herkkyys <span id="sensv">1.0</span>&times;</label>
+      <input id="sens" type="range" min="0.2" max="3" step="0.1" value="1">
+      <label>Kahden sormen veto</label>
+      <select id="twofinger">
+        <option value="auto">Tunnista automaattisesti</option>
+        <option value="pan">Panoroi aina</option>
+        <option value="zoom">Zoomaa aina</option>
+      </select>
+
+      <label>Selite</label>
+      <div id="legend" class="legend"></div>
+      <label>Kysely</label>
+      <table id="stats"></table>
+
+      <details id="browser">
+        <summary>Kokoelmat ja kohdeluokat</summary>
+        <select id="coll"></select>
+        <div id="cls"></div>
+      </details>
+
+      <details open>
+        <summary>Konfiguraatio</summary>
+        <textarea id="cfg" spellcheck="false"></textarea>
+        <div class="row" style="margin-top:6px">
+          <button id="apply">Piirrä</button><button id="reload">Palauta</button>
+        </div>
+        <div id="cfgerr" class="warn" style="font-size:11.5px;margin-top:6px"></div>
+      </details>
+    </div>
+  </div>
+  <div id="map"><canvas id="c"></canvas><div id="badge">avataan…</div></div>
+</div>
+
+<script type="module">
+import { installBuffer } from './buffer-shim.js';
+installBuffer();
+const { Reader } = await import('../src/read/reader.js');
+const { HttpTransport } = await import('../src/transport/http.js');
+const { boxRanges, boxToGrid } = await import('../src/hilbert.js');
+const { decodeParts } = await import('../src/geom.js');
+
+const ORDER = 18, SPAN = 2 ** (2 * ORDER);
+const EXTENT = { minx: 50000, miny: 6570000, maxx: 760000, maxy: 7800000 };
+const PRESETS = { 'Yleiskartta': 'style.json', 'Korkeusvyöhykkeet': 'style-korkeus.json',
+                  'Luonnonsuojelukohteet': 'style-suojelu.json',
+                  'Nyppyläkartta': 'style-nyppyla.json',
+                  'Suokartta': 'style-suokartta.json',
+                  'Suokartta (kategorinen)': 'style-suokartta-kat.json',
+                  'Vesistökartta': 'style-vesisto.json',
+                  'Paikkakartta': 'style-paikka.json',
+                  'Itä-länsikartta': 'style-italansi.json',
+                  'Ojakartta': 'style-ojat.json',
+                  'Tiepintakartta': 'style-tiepinta.json' };
+
+const $ = id => document.getElementById(id);
+const cv = $('c'), ctx = cv.getContext('2d');
+for (const k of Object.keys(PRESETS)) $('preset').add(new Option(k, k));
+
+// A split artifact advertises itself with a manifest beside the data. Try it
+// first: hosts that cap file size (GitHub blocks over 100 MiB) can only hold the
+// parts, and the manifest fetch replaces the HEAD the single-file transport
+// would have made, so looking costs nothing.
+const DATA = new URL('../data/mtk-map.l0', location.href).href;
+let t;
+try {
+  const { ChunkedHttpTransport } = await import('../src/transport/chunked-http.js');
+  t = await new ChunkedHttpTransport(DATA + '.json').open();
+} catch {
+  t = new HttpTransport(DATA);
+}
+const r = await new Reader(t).open();
+const cols = [...Object.keys(r.catalog.fields.kokoelma.values)].sort();
+const idOf = new Map(cols.map((c, i) => [c, i]));
+const layerOf = ki => (cols[ki] ?? '').split('@')[0];
+const bases = [...new Set(cols.map(c => c.split('@')[0]))].sort();
+for (const b of bases) $('coll').add(new Option(b, b));
+
+let cfg = null, cx = 385000, cy = 6675000, mpp = 35, drag = null, token = 0;
+// The last finished frame, plus the view it was drawn for. Dragging re-blits it
+// under the cursor so the map tracks the hand; the real fetch waits for mouseup.
+let snap = null, snapView = null;
+// A layer marked `global` is fetched whole, once, and kept. It exists for the
+// features a centroid index cannot find: the sea is ONE polygon whose centre is
+// out in the gulf, so a coastal viewport never selects it. Nationally it is 632
+// features and 0.03 MB, so fetching all of it is cheaper than being clever.
+const globalCache = new Map();
+async function fetchGlobal(L, scale) {
+  const key = `${L.from}@${scale}|${JSON.stringify(L.where ?? {})}`;
+  if (globalCache.has(key)) return globalCache.get(key);
+  const filter = [{ term: { kokoelma: `${L.from}@${scale}` } },
+    ...Object.entries(L.where ?? {}).map(([k, v]) => ({ terms: { [k]: v.map(String) } }))];
+  const res = await r.search({ query: { bool: { filter } }, size: L.globalLimit ?? 20000 });
+  const out = res.hits.hits.map(h => h._source).filter(x => x.geom);
+  globalCache.set(key, out);
+  return out;
+}
+
+// ---- config -------------------------------------------------------------
+async function loadPreset(name) {
+  const text = await (await fetch(PRESETS[name] + '?t=' + Date.now())).text();
+  $('cfg').value = text;
+  applyConfig();
+}
+function applyConfig() {
+  let next;
+  try { next = JSON.parse($('cfg').value); $('cfgerr').textContent = ''; }
+  catch (e) { $('cfgerr').textContent = 'JSON: ' + e.message; return; }
+  // A style may name the view it is meant to be read at; only on load, so
+  // editing colours does not yank the map away from where you were looking.
+  if (next.view && JSON.stringify(next.view) !== JSON.stringify(cfg?.view)) {
+    cx = next.view.x ?? cx; cy = next.view.y ?? cy; mpp = next.view.mpp ?? mpp;
+  }
+  cfg = next;
+  schedule(0);
+}
+const scaleFor = m => (cfg.scales ?? [{ over: 0, use: '100k' }])
+  .find(s => m > s.over)?.use ?? cfg.scales.at(-1).use;
+const activeLayers = m => (cfg.layers ?? [])
+  .filter(L => { const [a, b] = L.mpp ?? [0, 1e9]; return m >= a && m <= b; });
+
+// A feature belongs to the FIRST layer whose collection and filter it matches,
+// so two rules over the same collection (trunk roads, minor roads) stay distinct.
+const matches = (L, src, base) => {
+  if (L.from !== base) return false;
+  // `where` filters on an INDEXED field and rides with the query; `having`
+  // filters on a stored one and happens here, after the fetch. The split is the
+  // honest one: an indexed filter saves bytes, a stored filter only saves ink.
+  for (const [k, vals] of Object.entries(L.where ?? {}))
+    if (!vals.includes(String(src[k]))) return false;
+  for (const [k, cond] of Object.entries(L.having ?? {})) {
+    const v = src[k];
+    if (v == null) return false;
+    if (cond.in != null && !cond.in.includes(String(v))) return false;
+    if (cond.endsWith != null) {
+      const t = String(v).toLowerCase();
+      if (!cond.endsWith.some(x => t.endsWith(x))) return false;
+    }
+    if (cond.startsWith != null) {
+      const t = String(v).toLowerCase();
+      if (!cond.startsWith.some(x => t.startsWith(x))) return false;
+    }
+    if (cond.gte != null && !(v >= cond.gte)) return false;
+    if (cond.lte != null && !(v <= cond.lte)) return false;
+    if (cond.gt  != null && !(v >  cond.gt))  return false;
+    if (cond.lt  != null && !(v <  cond.lt))  return false;
+  }
+  return true;
+};
+
+/** Interpolate a NUMBER along stops, for sizing text by an importance field. */
+function lerpNum(stops, v) {
+  if (v == null) return stops[0][1];
+  let i = 0; while (i < stops.length - 1 && v > stops[i + 1][0]) i++;
+  if (i >= stops.length - 1) return stops.at(-1)[1];
+  const [v0, a] = stops[i], [v1, b2] = stops[i + 1];
+  const u = v1 === v0 ? 0 : (v - v0) / (v1 - v0);
+  return a + (b2 - a) * u;
+}
+
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+/** Discrete bands: the colour at or below the value, no blending between. */
+function band(steps, v) {
+  if (v == null) return steps[0][1];
+  let c = steps[0][1];
+  for (const [at, col] of steps) { if (v >= at) c = col; else break; }
+  return c;
+}
+function ramp(stops, v) {
+  if (v == null) return stops[0][1];
+  let i = 0; while (i < stops.length - 1 && v > stops[i + 1][0]) i++;
+  if (i >= stops.length - 1) return stops.at(-1)[1];
+  const [v0, c0] = stops[i], [v1, c1] = stops[i + 1];
+  const u = v1 === v0 ? 0 : (v - v0) / (v1 - v0);
+  const a = hex(c0), b = hex(c1);
+  return `rgb(${a.map((x, k) => Math.round(x + (b[k] - x) * u)).join(',')})`;
+}
+
+// ---- draw ---------------------------------------------------------------
+const W = () => cv.clientWidth, H = () => cv.clientHeight;
+const sx = x => (x - cx) / mpp + W() / 2;
+const sy = y => H() / 2 - (y - cy) / mpp;   // ETRS-TM35FIN is northing-up, canvas is not
+
+/**
+ * Draw the last finished frame as if it had been drawn for the current view.
+ * A point at map X was at (X - snapView.cx)/snapView.mpp + W/2 and belongs at
+ * (X - cx)/mpp + W/2, which is a uniform scale by snapView.mpp/mpp plus a shift
+ * — so one transform moves the whole frame, however far it is out of date.
+ */
+function blit() {
+  if (!snap || !snapView) return;
+  const k = snapView.mpp / mpp;
+  ctx.save();
+  ctx.fillStyle = cfg?.background ?? '#f3f1ec';
+  ctx.fillRect(0, 0, W(), H());                       // uncovered edge, not garbage
+  ctx.translate(W() / 2 + (snapView.cx - cx) / mpp,
+                H() / 2 - (snapView.cy - cy) / mpp);   // northing-up again
+  ctx.scale(k, k);
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(snap, -W() / 2, -H() / 2, W(), H());
+  ctx.restore();
+}
+
+function resize() {
+  const d = devicePixelRatio || 1;
+  const w = Math.round(cv.clientWidth * d), h = Math.round(cv.clientHeight * d);
+  if (!w || !h || (cv.width === w && cv.height === h)) return false;
+  cv.width = w; cv.height = h; ctx.setTransform(d, 0, 0, d, 0, 0);
+  return true;
+}
+
+async function draw() {
+  if (!cfg) return;
+  const mine = ++token;
+  const scale = scaleFor(mpp), active = activeLayers(mpp);
+  const bbox = [cx - W()/2*mpp, cy - H()/2*mpp, cx + W()/2*mpp, cy + H()/2*mpp];
+
+  // The index knows a feature by its CENTROID, so a lake bigger than the screen
+  // is missed the moment its middle scrolls out of view — and the bigger the
+  // feature, the worse it looks when it blinks out. The margin a layer needs is
+  // its own feature size, which tracks the viewport, so `pad` is a fraction of
+  // the view width (floored and capped in metres). Layers of small features keep
+  // pad 0 and pay nothing.
+  const padOf = L => Math.min(L.padMax ?? 50000,
+                              Math.max(L.padMin ?? 0, (L.pad ?? 0) * W() * mpp));
+  const ivCache = new Map();
+  // More intervals means a tighter cover of the box: measured over-fetch at a
+  // 450 km viewport is 1.17x with 64 intervals and 1.07x with 1024.
+  const ivFor = (pad, budget = 64) => {
+    const key = Math.round(pad) + ':' + budget;
+    if (!ivCache.has(key)) ivCache.set(key, boxRanges(ORDER, ...boxToGrid(ORDER, EXTENT,
+      [bbox[0]-pad, bbox[1]-pad, bbox[2]+pad, bbox[3]+pad]), budget));
+    return ivCache.get(key);
+  };
+
+  // One clause per (layer, interval): the attribute filter rides WITH its own
+  // ranges, so every rule keeps its own selection and it is still one wave.
+  const should = [];
+  for (const L of active) {
+    if (L.global) continue;                       // fetched whole, not by viewport
+    const ci = idOf.get(`${L.from}@${scale}`); if (ci === undefined) continue;
+    const where = Object.entries(L.where ?? {}).map(([k, v]) => ({ terms: { [k]: v.map(String) } }));
+    for (const [lo, hi] of ivFor(padOf(L), cfg.rangeBudget ?? 64)) {
+      const rng = { range: { avain: { gte: ci * SPAN + lo, lte: ci * SPAN + hi } } };
+      should.push(where.length ? { bool: { filter: [rng, ...where] } } : rng);
+    }
+  }
+  // Layers that share a collection and a pad emit the same clause — a protected
+  // areas style has five such layers, and sending the clause five times reads the
+  // collection five times. One `having` split beats five `where` queries.
+  {
+    const seen = new Set(), uniq = [];
+    for (const c of should) { const k = JSON.stringify(c);
+      if (!seen.has(k)) { seen.add(k); uniq.push(c); } }
+    should.length = 0; should.push(...uniq);
+  }
+  if (!should.length && !active.some(L => L.global)) { ctx.clearRect(0, 0, W(), H()); return; }
+
+  badge.textContent = 'haetaan…';
+  t.reset();
+  const t0 = performance.now();
+  const res = await r.search({ query: { bool: { should } }, size: cfg.limit ?? 24000 });
+  const ms = performance.now() - t0;
+  if (mine !== token) return;
+
+  ctx.fillStyle = cfg.background ?? '#f3f1ec';
+  ctx.fillRect(0, 0, W(), H());
+
+  // bucket results by rule, then draw rules in config order (first = bottom)
+  const buckets = active.map(() => []);
+  for (let i = 0; i < active.length; i++)
+    if (active[i].global) buckets[i] = await fetchGlobal(active[i], scale);
+  for (const h of res.hits.hits) {
+    if (!h._source.geom) continue;
+    const base = layerOf(h._source.ki);
+    const i = active.findIndex(L => matches(L, h._source, base));
+    if (i >= 0) buckets[i].push(h._source);
+  }
+  let pts = 0, drawn = 0; const labels = [];
+  active.forEach((L, i) => {
+    const d = L.draw ?? {};
+    for (const src of buckets[i]) {
+      const parts = decodeParts(src.geom);
+      drawn++; for (const p of parts) pts += p.length;
+      if (d.text) {
+        labels.push({ src, d });
+        continue;
+      }
+      if (d.dot && d.centroid) {
+        // One mark per FEATURE, not per vertex: a ditch is a line, but at national
+        // scale the question is where ditches are, not what shape each one has.
+        let cxs = 0, cys = 0, n = 0;
+        for (const p of parts) for (const [x, y] of p) { cxs += x; cys += y; n++; }
+        if (!n) continue;
+        const rad = Array.isArray(d.radius) ? lerpNum(d.radius, mpp) : (d.radius ?? 1);
+        ctx.fillStyle = d.dot;
+        ctx.beginPath(); ctx.arc(sx(cxs/n), sy(cys/n), rad, 0, 6.3); ctx.fill();
+        continue;
+      }
+      if (d.dot) {
+        // A fixed radius is wrong at both ends: a dot big enough to show its hue
+        // up close is a blob when the whole country is in view. Stops on mpp let
+        // the mark grow as the map does.
+        const rad = Array.isArray(d.radius) ? lerpNum(d.radius, mpp) : (d.radius ?? 1);
+        ctx.fillStyle = d.dot;
+        // A diverging ramp's middle steps are pale by construction — on a light
+        // map they vanish. A hairline ring gives every dot an edge, so the fill
+        // only has to carry the hue, not the visibility.
+        if (d.stroke) { ctx.strokeStyle = d.stroke; ctx.lineWidth = d.strokeWidth ?? 0.6; }
+        for (const p of parts) for (const [x, y] of p) {
+          ctx.beginPath(); ctx.arc(sx(x), sy(y), rad, 0, 6.3); ctx.fill();
+          if (d.stroke && rad >= 2) ctx.stroke(); }
+        continue;
+      }
+      // Sinuosity = walked length / straight-line distance between the ends. A dug
+      // ditch runs straight (~1.0); a natural brook wanders (>1.1). Nothing in the
+      // data says which is which, but the geometry does.
+      // End-to-end sinuosity breaks on a ditch dug around a field: the ends nearly
+      // meet, the chord goes to zero and a dead-straight ditch scores as the most
+      // natural thing on the map. Measure it LOCALLY instead — walk the line in
+      // fixed-length windows and average each window's arc/chord. A rectangle's
+      // long sides score 1.0 and only its corners cost anything; a meander scores
+      // high everywhere.
+      let sinu = null;
+      if (d.sinuosity) {
+        const WIN = d.sinuosityWindow ?? 300;     // metres of path per window
+        let sum = 0, nw = 0;
+        for (const p of parts) {
+          let i = 0;
+          while (i < p.length - 1) {
+            let arc = 0, j = i;
+            while (j < p.length - 1 && arc < WIN) {
+              arc += Math.hypot(p[j+1][0] - p[j][0], p[j+1][1] - p[j][1]); j++;
+            }
+            if (arc >= WIN * 0.6) {               // ignore a short tail
+              const chord = Math.hypot(p[j][0] - p[i][0], p[j][1] - p[i][1]);
+              if (chord > 1) { sum += arc / chord; nw++; }
+            }
+            i = j;
+          }
+        }
+        sinu = nw ? sum / nw : null;
+      }
+      ctx.beginPath();
+      for (const p of parts) {
+        p.forEach(([x, y], k) => k ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y)));
+        if (d.fill) ctx.closePath();
+      }
+      if (d.fill) { ctx.fillStyle = d.fill; ctx.fill('evenodd'); }
+      else {
+        ctx.strokeStyle = d.sinuosity
+          ? (sinu == null ? (d.line ?? '#888') : ramp(d.sinuosity, sinu))
+          : d.colorBy
+          ? (d.colorBy.steps ? band(d.colorBy.steps, src[d.colorBy.field])
+                             : ramp(d.colorBy.stops, src[d.colorBy.field]))
+          : (d.line ?? '#888');
+        ctx.lineWidth = d.width ?? 1; ctx.stroke();
+      }
+    }
+  });
+
+  // Labels last, biggest first, and a name is dropped if its box touches one
+  // already placed — without that a map at any zoom is a pile of overlapping ink.
+  if (labels.length) {
+    const taken = [];
+    // A bilingual place carries one record per language, and the two sit on the
+    // same point — so they knock each other out of the collision pass and the
+    // place ends up nameless. Keep one per place, by language preference.
+    const oneOf = active.find(L => L.draw?.text?.oneOf)?.draw.text.oneOf;
+    if (oneOf) {
+      const rank = Object.fromEntries((oneOf.prefer ?? []).map((v, i) => [v, i]));
+      const best = new Map();
+      for (const l of labels) {
+        const key = l.src[oneOf.by]; if (key == null) continue;
+        const r2 = rank[l.src[oneOf.on]] ?? 99, cur = best.get(key);
+        if (!cur || r2 < cur.r) best.set(key, { l, r: r2 });
+      }
+      labels.length = 0; for (const { l } of best.values()) labels.push(l);
+    }
+    // Who wins a collision: importance first, size only as a tie-break. On
+    // textsize alone HELSINKI and ESPOO tie at 380 and the capital loses a
+    // coin-flip; scalerelev separates them (8M vs 4.5M).
+    const rankOf = (l) => (l.d.text.rank ?? [l.d.text.by ?? 'textsize']).map(f => l.src[f] ?? 0);
+    labels.sort((a, b) => { const x = rankOf(a), y = rankOf(b);
+      for (let i = 0; i < y.length; i++) if (y[i] !== x[i]) return y[i] - x[i];
+      return 0; });
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const { src, d } of labels) {
+      const txt = String(src[d.text.field ?? 'text'] ?? '').trim();
+      if (!txt) continue;
+      const p = decodeParts(src.geom)[0]?.[0]; if (!p) continue;
+      const x = sx(p[0]), y = sy(p[1]);
+      if (x < -50 || y < -20 || x > W() + 50 || y > H() + 20) continue;
+      const size = Array.isArray(d.text.size)
+        ? lerpNum(d.text.size, src[d.text.by ?? 'textsize'])
+        : (d.text.size ?? 11);
+      const bold = size >= (d.text.boldAbove ?? 999);
+      ctx.font = `${bold ? 600 : (d.text.weight ?? 400)} ${size.toFixed(1)}px -apple-system,system-ui,sans-serif`;
+      const w = ctx.measureText(txt).width, h2 = size * 1.2;
+      const box = [x - w/2 - 2, y - h2/2 - 1, x + w/2 + 2, y + h2/2 + 1];
+      if (taken.some(t => box[0] < t[2] && box[2] > t[0] && box[1] < t[3] && box[3] > t[1])) continue;
+      taken.push(box);
+      if (d.text.halo) { ctx.lineWidth = d.text.haloWidth ?? 3; ctx.strokeStyle = d.text.halo;
+                         ctx.lineJoin = 'round'; ctx.strokeText(txt, x, y); }
+      ctx.fillStyle = d.text.color ?? '#333'; ctx.fillText(txt, x, y);
+      drawn++;
+    }
+  }
+
+  if (new URLSearchParams(location.search).has('dump')) {
+    let el = $('dump');
+    if (!el) { el = document.createElement('div'); el.id = 'dump'; el.style.display = 'none'; document.body.append(el); }
+    el.textContent = cv.toDataURL('image/png');
+  }
+
+  if (!snap) snap = document.createElement('canvas');
+  if (snap.width !== cv.width || snap.height !== cv.height) {
+    snap.width = cv.width; snap.height = cv.height;
+  }
+  const sc = snap.getContext('2d');
+  sc.setTransform(1, 0, 0, 1, 0, 0); sc.clearRect(0, 0, snap.width, snap.height);
+  sc.drawImage(cv, 0, 0);
+  snapView = { cx, cy, mpp };
+
+  // The legend is the style's own doing: a layer opts in with `legend: true` and
+  // its swatch is the very colour the renderer used, so the two cannot drift.
+  $('legend').innerHTML = (cfg.layers ?? []).filter(L => L.legend).map(L => {
+    const d = L.draw ?? {}, on = active.includes(L);
+    // The swatch is drawn the way the mark is drawn — a dot layer gets a disc with
+    // the same ring, a line layer gets a rule — so the key cannot drift from the map.
+    const kind = d.dot ? 'dot' : d.fill ? 'fill' : 'line';
+    const col = d.dot ?? d.fill ?? d.line ?? '#888';
+    const css = kind === 'line'
+      ? `border-bottom:4px solid ${col}`
+      : `background:${col}` + (d.stroke ? `;box-shadow:inset 0 0 0 1px ${d.stroke}` : '');
+    return `<div class="${on ? '' : 'off'}"><i class="${kind}" style="${css}"></i>${L.name}</div>`;
+  }).join('') || '<div style="opacity:.5">—</div>';
+
+  const total = res.hits.total.value, shown = res.hits.hits.length;
+  const fi = n => n.toLocaleString('fi-FI');
+  $('stats').innerHTML = [
+    ['Mittakaava', `1:${scale.replace('k', ' 000')}`],
+    ['Metriä / pikseli', fi(Math.round(mpp))],
+    ['Kerroksia', `${active.length} / ${(cfg.layers ?? []).length}`],
+    ['Lausekkeita', fi(should.length)],
+    ['Osumia', fi(total) + (shown < total ? ` <span class="warn">(${fi(shown)})</span>` : '')],
+    ['Piirretty', `${fi(drawn)} / ${fi(pts)} pistettä`],
+    ['<b>Kierroksia</b>', `<b>${t.stats.rounds}</b>`],
+    ['<b>Tavuja</b>', `<b>${(t.stats.bytes / 1e6).toFixed(2)} MB</b>`],
+    ['Aika', `${Math.round(ms)} ms`],
+  ].map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join('');
+  badge.innerHTML = `${t.stats.rounds} kierrosta &middot; ${(t.stats.bytes/1e6).toFixed(2)} MB &middot; ${Math.round(ms)} ms`;
+}
+
+async function safeDraw() {
+  try { await draw(); }
+  catch (e) {
+    badge.innerHTML = '<span class="warn">virhe</span>';
+    $('stats').innerHTML = `<tr><td colspan="2" class="warn" style="text-align:left">${
+      String(e?.stack || e).replace(/</g, '&lt;').split('\n').slice(0, 4).join('<br>')}</td></tr>`;
+    console.error(e);
+  }
+}
+let timer = null;
+const schedule = (ms = 120) => { clearTimeout(timer); timer = setTimeout(safeDraw, ms); };
+
+// ---- class browser ------------------------------------------------------
+async function showClasses() {
+  const base = $('coll').value, scale = cfg ? scaleFor(mpp) : '100k';
+  const coll = `${base}@${scale}`;
+  if (!idOf.has(coll)) { $('cls').textContent = `${coll}: ei tässä mittakaavassa`; return; }
+  $('cls').textContent = 'haetaan…';
+  const res = await r.search({ query: { term: { kokoelma: coll } }, size: 0,
+    aggs: { k: { terms: { field: 'Kohdeluokk', size: 40 } } } });
+  const b = res.aggregations.k.buckets;
+  $('cls').innerHTML = `<div style="color:var(--dim)"><span>${coll}</span><span>${
+    res.hits.total.value.toLocaleString('fi-FI')}</span></div>` +
+    b.map(x => `<div data-k="${x.key}"><span>${x.key}</span><span>${
+      x.doc_count.toLocaleString('fi-FI')}</span></div>`).join('');
+}
+$('coll').onchange = showClasses;
+$('browser').addEventListener('toggle', e => { if (e.target.open) showClasses(); });
+
+// ---- interaction --------------------------------------------------------
+cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY };
+  cv.classList.add('drag'); cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', e => { if (!drag) return;
+  cx -= (e.clientX - drag.x) * mpp; cy += (e.clientY - drag.y) * mpp;
+  drag = { x: e.clientX, y: e.clientY };
+  // No query while the button is down: the stale frame follows the hand at the
+  // refresh rate, and one real fetch happens when it is let go.
+  clearTimeout(timer); blit();
+  badge.innerHTML = '<span class="stale">vanha kuva &middot; irrota niin haetaan</span>'; });
+const endDrag = () => { if (!drag) return;
+  drag = null; cv.classList.remove('drag'); schedule(0); };
+cv.addEventListener('pointerup', endDrag);
+cv.addEventListener('pointercancel', endDrag);
+// A wheel notch is ONE event, a trackpad pinch is a stream of them at the refresh
+// rate — so a fixed step per event means a half-second pinch compounds about sixty
+// times. The zoom factor has to come from how far the fingers moved, not from the
+// number of events: k = exp(delta * sensitivity), which composes correctly however
+// the gesture is chopped into events.
+let sens = 1;
+$('sens').oninput = () => { sens = +$('sens').value; $('sensv').textContent = sens.toFixed(1); };
+
+/**
+ * A pinch is ctrl+wheel, but a two-finger drag and a mouse notch arrive as the
+ * same event — and they mean opposite things: pan vs zoom. Chrome's own numbers
+ * separate them: a wheel notch is an integer deltaY with `wheelDeltaY` a multiple
+ * of 120 and no horizontal component, while the trackpad sends fractional deltas,
+ * sideways movement, and wheelDeltaY = -3 * deltaY. The guess is good but not
+ * certain, so the sidebar can override it.
+ */
+function isTwoFingerDrag(e) {
+  const mode = $('twofinger').value;
+  if (mode !== 'auto') return mode === 'pan';
+  if (e.ctrlKey) return false;                       // pinch is always zoom
+  const wd = e.wheelDeltaY;
+  // Chrome's trackpad signature: wheelDeltaY is exactly -3 * deltaY. A mouse
+  // notch instead reports a multiple of 120. Check the positive signals first;
+  // the shape tests below are only the fallback.
+  if (wd && Math.abs(wd + 3 * e.deltaY) < 0.5) return true;
+  if (wd && Math.abs(wd) % 120 === 0) return false;
+  if (e.deltaX !== 0) return true;                   // a wheel has no sideways
+  if (!Number.isInteger(e.deltaY)) return true;      // trackpads send fractions
+  return Math.abs(e.deltaY) < 40;                    // a notch is ~100px
+}
+
+cv.addEventListener('wheel', e => { e.preventDefault();
+  // deltaMode: 0 = pixels, 1 = lines, 2 = pages. Normalise to pixels first.
+  const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
+  const dy = e.deltaY * unit;
+
+  if (isTwoFingerDrag(e)) {
+    // Same sign convention as dragging the canvas: the map follows the fingers.
+    cx += e.deltaX * unit * mpp;
+    cy -= dy * mpp;
+    blit(); schedule(); return;
+  }
+
+  // macOS sends a pinch as ctrl+wheel with small deltas; a mouse notch is ~100px
+  // and should still land on the familiar 1.3x.
+  const perPx = (e.ctrlKey ? 0.010 : Math.log(1.3) / 100) * sens;
+  let k = Math.exp(dy * perPx);
+  k = Math.min(1.4, Math.max(1 / 1.4, k));      // no single event may bolt
+                                                // (above a wheel notch's 1.3, so that stays familiar)
+  const r0 = cv.getBoundingClientRect();
+  const px = e.clientX - r0.left - W()/2, py = e.clientY - r0.top - H()/2;
+  cx += px * mpp * (1 - k); cy -= py * mpp * (1 - k);     // zoom toward the cursor
+  mpp = Math.min(4000, Math.max(2, mpp * k)); blit(); schedule(); }, { passive: false });
+$('in').onclick = () => { mpp = Math.max(2, mpp / 2); blit(); schedule(0); };
+$('out').onclick = () => { mpp = Math.min(4000, mpp * 2); blit(); schedule(0); };
+$('home').onclick = () => { cx = 400000; cy = 7100000; mpp = 1400; blit(); schedule(0); };
+$('apply').onclick = applyConfig;
+$('reload').onclick = () => loadPreset($('preset').value);
+$('preset').onchange = () => loadPreset($('preset').value);
+addEventListener('resize', () => { if (resize()) schedule(); });
+
+resize();
+const qs = new URLSearchParams(location.search);
+await loadPreset(qs.get('style') ?? 'Yleiskartta');
+if (qs.has('view')) {                      // ?view=x,y,mpp — for scripted screenshots
+  const [a, b, c] = qs.get('view').split(',').map(Number);
+  cx = a; cy = b; mpp = c; schedule(0);
+}
+</script>

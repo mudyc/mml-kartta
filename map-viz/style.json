@@ -1,0 +1,624 @@
+{
+  "_": [
+    "Perus maastokartta. Kerros on sääntö:",
+    "  from    kokoelman nimi ilman mittakaavaa (TieViiva, VesiAlue, ...)",
+    "  where   valinnainen suodatin, esim. {\"Kohdeluokk\": [\"12111\",\"12112\"]}",
+    "  mpp     [pienin, suurin] metriä per pikseli jolloin kerros näkyy",
+    "  global  true = haetaan koko maasta kerran, ei näkymän mukaan",
+    "  draw    fill | line+width | dot+radius | text | colorBy (steps tai stops)",
+    "Järjestys on piirtojärjestys. Kohdeluokat näet vasemman palkin selaimesta.",
+    "Meri on global, koska se on yksi valtava polygoni jonka keskipiste on",
+    "ulkona merellä — keskipisteeseen perustuva haku ei löydä sitä rannikolta.",
+    "having suodattaa TALLENNETTUA kenttää selaimessa (ei säästä tavuja, vain mustetta).",
+    "where suodattaa INDEKSOITUA kenttää kyselyssä (säästää tavuja).",
+    "Nimistö: scalerelev kertoo MILLOIN nimi näytetään (MML:n oma mittakaavarelevanssi),",
+    "textsize kertoo MINKÄ KOKOISENA. Ne ovat eri asioita eivätkä korreloi täysin.",
+    "mpp -> paperimittakaava ~ mpp*3780 (96 dpi), siitä scalerelev-kynnys.",
+    "oneOf pitää kaksikielisestä paikasta vain yhden nimen — muuten HELSINKI ja",
+    "HELSINGFORS istuvat samassa pisteessä ja pudottavat toisensa törmäystarkistuksessa.",
+    "pad = kuinka paljon hakualuetta levennetään, osuutena näkymän leveydestä.",
+    "Tarpeen koska indeksi tuntee kohteen KESKIPISTEESTÄ: iso järvi katoaa heti kun",
+    "sen keskikohta valuu ruudun ulkopuolelle. padMin on lattia metreinä."
+  ],
+  "view": {
+    "x": 385000,
+    "y": 6675000,
+    "mpp": 35
+  },
+  "background": "#eef1f3",
+  "limit": 400000,
+  "scales": [
+    {
+      "over": 60,
+      "use": "250k"
+    },
+    {
+      "over": 0,
+      "use": "100k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "where": {
+        "Kohdeluokk": [
+          "44300"
+        ]
+      },
+      "global": true,
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#cfdfeb"
+      }
+    },
+    {
+      "name": "Maa",
+      "from": "MaaAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "draw": {
+        "fill": "#f6f4ed"
+      },
+      "pad": 0.25,
+      "padMin": 1000
+    },
+    {
+      "name": "Pelto",
+      "from": "PeltoAlue",
+      "mpp": [
+        0,
+        200
+      ],
+      "draw": {
+        "fill": "#eff0df"
+      },
+      "pad": 0.15,
+      "padMin": 500
+    },
+    {
+      "name": "Suo",
+      "from": "Maasto2Alue",
+      "mpp": [
+        0,
+        200
+      ],
+      "draw": {
+        "fill": "#e9ece5"
+      },
+      "pad": 0.15,
+      "padMin": 500
+    },
+    {
+      "name": "Järvet",
+      "from": "VesiAlue",
+      "where": {
+        "Kohdeluokk": [
+          "36200",
+          "36211",
+          "36315"
+        ]
+      },
+      "mpp": [
+        0,
+        900
+      ],
+      "draw": {
+        "fill": "#cfdfeb"
+      },
+      "pad": 0.6,
+      "padMin": 25000
+    },
+    {
+      "name": "Joet",
+      "from": "VesiViiva",
+      "where": {
+        "Kohdeluokk": [
+          "36314"
+        ]
+      },
+      "mpp": [
+        0,
+        300
+      ],
+      "draw": {
+        "line": "#a8c8df",
+        "width": 1.3
+      },
+      "pad": 0.25,
+      "padMin": 2000
+    },
+    {
+      "name": "Purot",
+      "from": "VesiViiva",
+      "where": {
+        "Kohdeluokk": [
+          "36311",
+          "36312"
+        ]
+      },
+      "mpp": [
+        0,
+        25
+      ],
+      "draw": {
+        "line": "#bcd5e6",
+        "width": 0.6
+      },
+      "pad": 0.1,
+      "padMin": 500
+    },
+    {
+      "name": "Taajama",
+      "from": "TaajamaAlue",
+      "mpp": [
+        0,
+        400
+      ],
+      "draw": {
+        "fill": "#ece6de"
+      },
+      "pad": 0.6,
+      "padMin": 10000
+    },
+    {
+      "name": "Rakennukset",
+      "from": "RakennusPiste",
+      "mpp": [
+        0,
+        18
+      ],
+      "draw": {
+        "dot": "#9d978e",
+        "radius": 0.8
+      }
+    },
+    {
+      "name": "Pikkutiet",
+      "from": "TieViiva",
+      "where": {
+        "Kohdeluokk": [
+          "12141"
+        ]
+      },
+      "mpp": [
+        0,
+        25
+      ],
+      "draw": {
+        "line": "#d8d4cb",
+        "width": 0.8
+      },
+      "pad": 0.05,
+      "padMin": 500
+    },
+    {
+      "name": "Paikallistiet",
+      "from": "TieViiva",
+      "where": {
+        "Kohdeluokk": [
+          "12132",
+          "12131"
+        ]
+      },
+      "mpp": [
+        0,
+        90
+      ],
+      "draw": {
+        "line": "#c2bdb2",
+        "width": 1.0
+      },
+      "pad": 0.05,
+      "padMin": 500
+    },
+    {
+      "name": "Seututiet",
+      "from": "TieViiva",
+      "where": {
+        "Kohdeluokk": [
+          "12122",
+          "12121"
+        ]
+      },
+      "mpp": [
+        0,
+        400
+      ],
+      "draw": {
+        "line": "#e8c89a",
+        "width": 1.6
+      },
+      "pad": 0.1,
+      "padMin": 500
+    },
+    {
+      "name": "Valtatiet",
+      "from": "TieViiva",
+      "where": {
+        "Kohdeluokk": [
+          "12111",
+          "12112"
+        ]
+      },
+      "mpp": [
+        0,
+        1500
+      ],
+      "draw": {
+        "line": "#e8a04e",
+        "width": 2.2
+      },
+      "pad": 0.1,
+      "padMin": 500
+    },
+    {
+      "name": "Rautatie",
+      "from": "RautatieViiva",
+      "mpp": [
+        0,
+        900
+      ],
+      "draw": {
+        "line": "#6f6b64",
+        "width": 1.2
+      },
+      "pad": 0.3,
+      "padMin": 5000
+    },
+    {
+      "name": "Kuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        0,
+        1500
+      ],
+      "draw": {
+        "line": "#00000022",
+        "width": 1.0
+      },
+      "pad": 0.6,
+      "padMin": 10000
+    },
+    {
+      "name": "Nimistö 1200–∞",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        1200,
+        9999
+      ],
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              9.5
+            ],
+            [
+              210,
+              10.5
+            ],
+            [
+              240,
+              11.5
+            ],
+            [
+              320,
+              14
+            ],
+            [
+              380,
+              16
+            ],
+            [
+              480,
+              19
+            ],
+            [
+              720,
+              22
+            ]
+          ],
+          "boldAbove": 13.5,
+          "color": "#3a3833",
+          "halo": "#f6f4edd0",
+          "haloWidth": 3,
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ]
+        }
+      },
+      "having": {
+        "scalerelev": {
+          "gte": 4500000
+        }
+      }
+    },
+    {
+      "name": "Nimistö 500–1200",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        500,
+        1200
+      ],
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              9.5
+            ],
+            [
+              210,
+              10.5
+            ],
+            [
+              240,
+              11.5
+            ],
+            [
+              320,
+              14
+            ],
+            [
+              380,
+              16
+            ],
+            [
+              480,
+              19
+            ],
+            [
+              720,
+              22
+            ]
+          ],
+          "boldAbove": 13.5,
+          "color": "#3a3833",
+          "halo": "#f6f4edd0",
+          "haloWidth": 3,
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ]
+        }
+      },
+      "having": {
+        "scalerelev": {
+          "gte": 2000000
+        }
+      }
+    },
+    {
+      "name": "Nimistö 200–500",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        200,
+        500
+      ],
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              9.5
+            ],
+            [
+              210,
+              10.5
+            ],
+            [
+              240,
+              11.5
+            ],
+            [
+              320,
+              14
+            ],
+            [
+              380,
+              16
+            ],
+            [
+              480,
+              19
+            ],
+            [
+              720,
+              22
+            ]
+          ],
+          "boldAbove": 13.5,
+          "color": "#3a3833",
+          "halo": "#f6f4edd0",
+          "haloWidth": 3,
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ]
+        }
+      },
+      "having": {
+        "scalerelev": {
+          "gte": 1000000
+        }
+      }
+    },
+    {
+      "name": "Nimistö 60–200",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        60,
+        200
+      ],
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              9.5
+            ],
+            [
+              210,
+              10.5
+            ],
+            [
+              240,
+              11.5
+            ],
+            [
+              320,
+              14
+            ],
+            [
+              380,
+              16
+            ],
+            [
+              480,
+              19
+            ],
+            [
+              720,
+              22
+            ]
+          ],
+          "boldAbove": 13.5,
+          "color": "#3a3833",
+          "halo": "#f6f4edd0",
+          "haloWidth": 3,
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ]
+        }
+      },
+      "having": {
+        "scalerelev": {
+          "gte": 500000
+        }
+      }
+    },
+    {
+      "name": "Nimistö 0–60",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        60
+      ],
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              9.5
+            ],
+            [
+              210,
+              10.5
+            ],
+            [
+              240,
+              11.5
+            ],
+            [
+              320,
+              14
+            ],
+            [
+              380,
+              16
+            ],
+            [
+              480,
+              19
+            ],
+            [
+              720,
+              22
+            ]
+          ],
+          "boldAbove": 13.5,
+          "color": "#3a3833",
+          "halo": "#f6f4edd0",
+          "haloWidth": 3,
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ]
+        }
+      }
+    }
+  ]
+}

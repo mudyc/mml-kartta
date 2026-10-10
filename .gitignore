@@ -1,0 +1,19 @@
+# Aineisto: artefaktit ovat satoja megatavuja, ne rakennetaan lähteestä
+data/
+*.l0.[0-9][0-9][0-9]
+*.l0.json
+*.l0
+*.zip
+*.shp
+*.dbf
+*.shx
+*.cpg
+*.prj
+
+# Avaimet: MML:n API-avain asuu ~/.config/mml.env, EI koskaan repossa
+*.env
+*.pem
+*.key
+
+node_modules/
+.DS_Store

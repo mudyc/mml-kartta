@@ -1,0 +1,409 @@
+{
+  "_": [
+    "Tiepintakartta: sora vs. kestopäällyste. Kenttä on Paallyste, arvot 1 ja 2.",
+    "",
+    "Arvojen merkitys varmistettu kahdella tavalla. Data: luokka 12111 (Autotie Ia,",
+    "valtatie) on 100 % arvoa 2 ja luokka 12141 (ajotie) 98 % arvoa 1.",
+    "Dokumentti (Maanmittauslaitoksen maastotietokohteet 27.5.2025): 'Päällystetiedon",
+    "luokan oletusarvo on Autotie Ia - Autotie IIb -luokilla kestopäällyste ja",
+    "Autotie IIIa, Autotie IIIb ja Ajotie -luokilla päällystämätön.' ja",
+    "'Päällystämätön autotie on sorapäällysteinen tie.'",
+    "  -> 1 = päällystämätön (sora),  2 = kestopäällyste (asfaltti, öljysora)",
+    "",
+    "Koko maan pituudet 1:100 000 -aineistosta mitattuna:",
+    "  päällystämätön  688 547 kohdetta   361 806 km",
+    "  kestopäällyste  312 838 kohdetta    80 334 km",
+    "Eli soraa on 4.5-kertaisesti pitiin verrattuna.",
+    "",
+    "Kaikki suodatus havingilla, ei wherellä. Paallyste ei ole indeksoitu, ja jos",
+    "käyttäisin whereä Kohdeluokalle, neljä kerrosta tekisi neljä kyselyä samaan",
+    "kokoelmaan ja lukisi sen neljästi. Nyt lausekkeita on yksi.",
+    "",
+    "Talvitie on dokumentin mukaan aina 'päällystämätön' ja pitkospuut",
+    "'kestopäällyste' — ne ovat mukana ajotie-luokissa."
+  ],
+  "view": {
+    "x": 400000,
+    "y": 7150000,
+    "mpp": 1500
+  },
+  "background": "#f7f6f2",
+  "limit": 1500000,
+  "scales": [
+    {
+      "over": 60,
+      "use": "250k"
+    },
+    {
+      "over": 0,
+      "use": "100k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "global": true,
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#e5eaec"
+      }
+    },
+    {
+      "name": "Maa",
+      "from": "MaaAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.25,
+      "padMin": 1000,
+      "draw": {
+        "fill": "#fdfcf9"
+      }
+    },
+    {
+      "name": "Järvet",
+      "from": "VesiAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.6,
+      "padMin": 25000,
+      "draw": {
+        "fill": "#e5eaec"
+      }
+    },
+    {
+      "name": "Sora – ajotie, polku, talvitie",
+      "from": "TieViiva",
+      "mpp": [
+        0,
+        30
+      ],
+      "pad": 0.1,
+      "padMin": 500,
+      "legend": false,
+      "having": {
+        "Paallyste": {
+          "in": [
+            "1"
+          ]
+        },
+        "Kohdeluokk": {
+          "in": [
+            "12141",
+            "12151",
+            "12152"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#c08f54",
+        "width": 0.6
+      }
+    },
+    {
+      "name": "Sora – yhdystie",
+      "from": "TieViiva",
+      "mpp": [
+        0,
+        120
+      ],
+      "pad": 0.1,
+      "padMin": 500,
+      "legend": false,
+      "having": {
+        "Paallyste": {
+          "in": [
+            "1"
+          ]
+        },
+        "Kohdeluokk": {
+          "in": [
+            "12131",
+            "12132"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#c08f54",
+        "width": 0.8
+      }
+    },
+    {
+      "name": "Sora (päällystämätön) – 361 806 km",
+      "from": "TieViiva",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.1,
+      "padMin": 500,
+      "legend": true,
+      "having": {
+        "Paallyste": {
+          "in": [
+            "1"
+          ]
+        },
+        "Kohdeluokk": {
+          "in": [
+            "12111",
+            "12112",
+            "12121",
+            "12122",
+            "12131",
+            "12132"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#c08f54",
+        "width": 1.2
+      }
+    },
+    {
+      "name": "Piki – ajotie ja katu",
+      "from": "TieViiva",
+      "mpp": [
+        0,
+        30
+      ],
+      "pad": 0.1,
+      "padMin": 500,
+      "legend": false,
+      "having": {
+        "Paallyste": {
+          "in": [
+            "2"
+          ]
+        },
+        "Kohdeluokk": {
+          "in": [
+            "12141",
+            "12151",
+            "12152"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#2e2e2b",
+        "width": 0.6
+      }
+    },
+    {
+      "name": "Piki – yhdystie",
+      "from": "TieViiva",
+      "mpp": [
+        0,
+        300
+      ],
+      "pad": 0.1,
+      "padMin": 500,
+      "legend": false,
+      "having": {
+        "Paallyste": {
+          "in": [
+            "2"
+          ]
+        },
+        "Kohdeluokk": {
+          "in": [
+            "12131",
+            "12132"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#2e2e2b",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "Kestopäällyste – 80 334 km",
+      "from": "TieViiva",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.1,
+      "padMin": 500,
+      "legend": true,
+      "having": {
+        "Paallyste": {
+          "in": [
+            "2"
+          ]
+        },
+        "Kohdeluokk": {
+          "in": [
+            "12111",
+            "12112",
+            "12121",
+            "12122"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#2e2e2b",
+        "width": 1.6
+      }
+    },
+    {
+      "name": "Kuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        0,
+        400
+      ],
+      "pad": 0.6,
+      "padMin": 10000,
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84113",
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#00000012",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "Maakuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        400,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 10000,
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#00000016",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "Nimistö",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        400
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 1000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              9
+            ],
+            [
+              240,
+              10
+            ],
+            [
+              320,
+              12
+            ],
+            [
+              480,
+              14
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#8b8f8a",
+          "halo": "#f7f6f2d0",
+          "haloWidth": 2.5
+        }
+      }
+    },
+    {
+      "name": "Kaupungit",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        400,
+        9999
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 8000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              320,
+              9
+            ],
+            [
+              380,
+              10
+            ],
+            [
+              720,
+              12
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#8d918c",
+          "halo": "#f7f6f2d0",
+          "haloWidth": 2.5
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,491 @@
+{
+  "_": [
+    "Suokartta: sama maastonmuoto, seitsemän eri sanaa, kullakin oma alue.",
+    "Mitattu r50 = säde jonka sisään puolet esiintymistä mahtuu (kaikkien nimien",
+    "vertailuarvo 245 km):",
+    "  keidas  200 kpl  r50  21 km  Satakunta (Honkajoki)",
+    "  vuoma   934 kpl  r50  65 km  Länsi-Lappi (Kaukonen)",
+    "  räme    395 kpl  r50  66 km  Pohjanmaan rannikko (Pyhäjoki)",
+    "  aapa   1112 kpl  r50  78 km  Itä-Lappi (Pyhätunturi)",
+    "  jänkkä  335 kpl  r50  80 km  Tornionlaakso (Sieppijärvi)",
+    "  neva   3470 kpl  r50  97 km  Pohjanmaa (Halsua)",
+    "  suo    8826 kpl  r50 161 km  koko maa",
+    "",
+    "Rajattu placetype 1020205/1020305 (suonimet) — 94–100 % näistä sanoista on",
+    "niissä luokissa, loput taloja ja kyliä.",
+    "",
+    "Värit: 7 kategorista väriä on värisokeuden kannalta vaikea raja. Satunnaishaku",
+    "ei löytänyt ratkaisua lainkaan; ahne haku + paikallinen parannus löysi.",
+    "Huonoin pari: normaali ΔE 16.2, protan/deutan/tritan 11.8. Hylkyjä 0."
+  ],
+  "view": {
+    "x": 400000,
+    "y": 7150000,
+    "mpp": 1500
+  },
+  "background": "#f4f3ef",
+  "limit": 400000,
+  "scales": [
+    {
+      "over": 0,
+      "use": "100k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "global": true,
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#e4e8ea"
+      }
+    },
+    {
+      "name": "Maa",
+      "from": "MaaAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.25,
+      "padMin": 1000,
+      "draw": {
+        "fill": "#fbfaf7"
+      }
+    },
+    {
+      "name": "Maakuntaraja",
+      "from": "HallintoalueRaja",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 10000,
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#00000012",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "…suo  (koko maa)",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "suo"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#a96460",
+        "radius": [
+          [
+            5,
+            9
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            80,
+            5
+          ],
+          [
+            300,
+            3.4
+          ],
+          [
+            900,
+            2.2
+          ],
+          [
+            1500,
+            1.8
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…neva  (Pohjanmaa)",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "neva"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#879f18",
+        "radius": [
+          [
+            5,
+            9
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            80,
+            5
+          ],
+          [
+            300,
+            3.4
+          ],
+          [
+            900,
+            2.2
+          ],
+          [
+            1500,
+            1.8
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…aapa  (Itä-Lappi)",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "aapa"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#3a71ac",
+        "radius": [
+          [
+            5,
+            9
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            80,
+            5
+          ],
+          [
+            300,
+            3.4
+          ],
+          [
+            900,
+            2.2
+          ],
+          [
+            1500,
+            1.8
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…vuoma  (Länsi-Lappi)",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "vuoma"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#4530af",
+        "radius": [
+          [
+            5,
+            12
+          ],
+          [
+            20,
+            9.5
+          ],
+          [
+            80,
+            7
+          ],
+          [
+            300,
+            4.6
+          ],
+          [
+            900,
+            3
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…jänkkä  (Tornionlaakso)",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "jänkkä"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#9079fe",
+        "radius": [
+          [
+            5,
+            12
+          ],
+          [
+            20,
+            9.5
+          ],
+          [
+            80,
+            7
+          ],
+          [
+            300,
+            4.6
+          ],
+          [
+            900,
+            3
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…räme  (Pohjanmaan rannikko)",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "räme"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#475411",
+        "radius": [
+          [
+            5,
+            12
+          ],
+          [
+            20,
+            9.5
+          ],
+          [
+            80,
+            7
+          ],
+          [
+            300,
+            4.6
+          ],
+          [
+            900,
+            3
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "…keidas  (Satakunta)",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        9999
+      ],
+      "having": {
+        "placetype": {
+          "in": [
+            "1020205",
+            "1020305"
+          ]
+        },
+        "text": {
+          "endsWith": [
+            "keidas"
+          ]
+        }
+      },
+      "legend": true,
+      "draw": {
+        "dot": "#850f66",
+        "radius": [
+          [
+            5,
+            12
+          ],
+          [
+            20,
+            9.5
+          ],
+          [
+            80,
+            7
+          ],
+          [
+            300,
+            4.6
+          ],
+          [
+            900,
+            3
+          ],
+          [
+            1500,
+            2.4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "Kaupungit",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        400,
+        9999
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 8000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              320,
+              9
+            ],
+            [
+              380,
+              10
+            ],
+            [
+              720,
+              12
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#9aa09b",
+          "halo": "#f4f3efd0",
+          "haloWidth": 2.5
+        }
+      }
+    }
+  ]
+}

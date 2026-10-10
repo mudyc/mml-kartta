@@ -1,0 +1,573 @@
+{
+  "_": [
+    "Luonnonsuojelu- ja rajoitusalueet Maanmittauslaitoksen maastokartta-aineistosta.",
+    "Kohdeluokat tunnistettu aineistosta itsestään, ei dokumentaatiosta: haettiin",
+    "karttanimistöstä nimet jotka sisältävät 'kansallispuisto' / 'luonnonpuisto' /",
+    "'retkeilyalue' ja katsottiin pisteessä-polygonissa-testillä minkä luokan sisään",
+    "ne osuvat. 72202 = kansallispuisto (68/81), 72201 = luonnonpuisto (18/22),",
+    "72700 = erämaa-alue, 72800 = valtion retkeilyalue (5/5), 72200 = muu",
+    "luonnonsuojelualue, 62100 = ampuma-alue, 62200 = merivoimien suoja-alue.",
+    "",
+    "Värit: suojelu vihreän sävyissä (mitä tiukempi suojelu, sitä tummempi),",
+    "puolustusvoimien alueet punaisella — eri sävyperhe, jotta ne erottuvat",
+    "suojelualueista myös värisokealta.",
+    "",
+    "pad = hakualueen levennys, koska indeksi tuntee kohteen vain keskipisteestään.",
+    "",
+    "HUOM: maastotietokannassa EI ole varuskunta-luokkaa. Puolustusvoimista on vain",
+    "Ampuma-alue (62100, rajat saadaan puolustusvoimilta) ja Suoja-alue (62200,",
+    "valtioneuvoston päätös alusten liikkumisrajoituksista).",
+    "Luokkanimet tarkistettu dokumentista 'Maanmittauslaitoksen maastotietokohteet',",
+    "päivitetty 27.5.2025. Koodi 72202 on Alue-kohteena Kansallispuisto ja",
+    "Teksti-kohteena Luonnonsuojelualueen selite — meillä alueita.",
+    "Suojametsä (72500) ei ole luonnonsuojelua vaan metsänrajan suojelua: kattaa",
+    "Enontekiön ja Utsjoen kokonaan sekä osia kuudesta muusta Lapin kunnasta.",
+    "",
+    "Suojeluluokat suodatetaan havingilla eikä wherellä: kaikki viisi lukevat samaa",
+    "SuojeluAlue-kokoelmaa, ja viisi where-kyselyä lukisi sen viidesti. Yksi haku +",
+    "jako selaimessa maksaa yhden kokoelman.",
+    "",
+    "Nimistö on tässä tyylissä tarkoituksella niukka ja haalea: koko maan kuvassa",
+    "vain scalerelev >= 8 M eli 32 nimeä, jotta suojelualueet erottuvat.",
+    "",
+    "Hallintorajat: koko maan kuvassa vain maakunta- ja valtakunnanraja (885 viivaa",
+    "250k:ssa), kuntaraja vasta alle 400 m/px. Aiemmin piirtyivät kaikki luokat,",
+    "myös 82100 aluemeren ulkoraja.",
+    "",
+    "Valtatiet poistettu: ne maksoivat 16,7 MB mpp 250:ssa eli kolme kertaa",
+    "enemmän kuin koko suojeluaineisto, ja olivat pelkkää koristetta."
+  ],
+  "view": {
+    "x": 400000,
+    "y": 7150000,
+    "mpp": 1500
+  },
+  "background": "#eef1f3",
+  "limit": 400000,
+  "scales": [
+    {
+      "over": 60,
+      "use": "250k"
+    },
+    {
+      "over": 0,
+      "use": "100k"
+    }
+  ],
+  "layers": [
+    {
+      "name": "Meri",
+      "from": "VesiAlue",
+      "global": true,
+      "mpp": [
+        0,
+        9999
+      ],
+      "draw": {
+        "fill": "#dde6ec"
+      }
+    },
+    {
+      "name": "Maa",
+      "from": "MaaAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.25,
+      "padMin": 1000,
+      "draw": {
+        "fill": "#f7f6f1"
+      }
+    },
+    {
+      "name": "Järvet",
+      "from": "VesiAlue",
+      "mpp": [
+        0,
+        900
+      ],
+      "pad": 0.6,
+      "padMin": 25000,
+      "draw": {
+        "fill": "#dde6ec"
+      }
+    },
+    {
+      "name": "Muu luonnonsuojelualue",
+      "from": "SuojeluAlue",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 40000,
+      "legend": true,
+      "draw": {
+        "fill": "#cfe3c4"
+      },
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "72200"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Valtion retkeilyalue",
+      "from": "SuojeluAlue",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 40000,
+      "legend": true,
+      "draw": {
+        "fill": "#d9e2a8"
+      },
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "72800"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Erämaa-alue",
+      "from": "SuojeluAlue",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 40000,
+      "legend": true,
+      "draw": {
+        "fill": "#a9c3a0"
+      },
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "72700"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Kansallispuisto",
+      "from": "SuojeluAlue",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 40000,
+      "legend": true,
+      "draw": {
+        "fill": "#5fa05a"
+      },
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "72202"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Luonnonpuisto",
+      "from": "SuojeluAlue",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 40000,
+      "legend": true,
+      "draw": {
+        "fill": "#24643a"
+      },
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "72201"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ampuma-alue",
+      "from": "AmpumaRaja",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 25000,
+      "legend": true,
+      "draw": {
+        "line": "#c2362b",
+        "width": 2.0
+      }
+    },
+    {
+      "name": "Suoja-alue (merenkulkurajoitus)",
+      "from": "SuojaAlue",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 25000,
+      "legend": true,
+      "draw": {
+        "fill": "#8d3d8a22"
+      }
+    },
+    {
+      "name": "Suoja-alueen raja",
+      "from": "SuojaAlue",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 25000,
+      "draw": {
+        "line": "#8d3d8a",
+        "width": 1.6
+      }
+    },
+    {
+      "name": "Suojametsän raja (Lappi)",
+      "from": "SuojametsaRaja",
+      "mpp": [
+        0,
+        9999
+      ],
+      "pad": 0.6,
+      "padMin": 40000,
+      "legend": true,
+      "draw": {
+        "line": "#7d8a5e",
+        "width": 1.4
+      }
+    },
+    {
+      "from": "HallintoalueRaja",
+      "pad": 0.6,
+      "padMin": 10000,
+      "name": "Maakuntaraja",
+      "mpp": [
+        400,
+        9999
+      ],
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#00000016",
+        "width": 0.9
+      }
+    },
+    {
+      "from": "HallintoalueRaja",
+      "pad": 0.6,
+      "padMin": 10000,
+      "name": "Kuntaraja",
+      "mpp": [
+        0,
+        400
+      ],
+      "having": {
+        "Kohdeluokk": {
+          "in": [
+            "84113",
+            "84115",
+            "84111"
+          ]
+        }
+      },
+      "draw": {
+        "line": "#0000000f",
+        "width": 0.9
+      }
+    },
+    {
+      "name": "Nimistö 800–∞",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        800,
+        9999
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 8000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              8.5
+            ],
+            [
+              210,
+              9
+            ],
+            [
+              240,
+              9.5
+            ],
+            [
+              320,
+              10.5
+            ],
+            [
+              380,
+              11.5
+            ],
+            [
+              480,
+              13
+            ],
+            [
+              720,
+              14
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#7c8580",
+          "halo": "#f7f6f1c0",
+          "haloWidth": 2.5
+        }
+      }
+    },
+    {
+      "name": "Nimistö 250–800",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        250,
+        800
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 4500000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              8.5
+            ],
+            [
+              210,
+              9
+            ],
+            [
+              240,
+              9.5
+            ],
+            [
+              320,
+              10.5
+            ],
+            [
+              380,
+              11.5
+            ],
+            [
+              480,
+              13
+            ],
+            [
+              720,
+              14
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#7c8580",
+          "halo": "#f7f6f1c0",
+          "haloWidth": 2.5
+        }
+      }
+    },
+    {
+      "name": "Nimistö 70–250",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        70,
+        250
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 2000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              8.5
+            ],
+            [
+              210,
+              9
+            ],
+            [
+              240,
+              9.5
+            ],
+            [
+              320,
+              10.5
+            ],
+            [
+              380,
+              11.5
+            ],
+            [
+              480,
+              13
+            ],
+            [
+              720,
+              14
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#7c8580",
+          "halo": "#f7f6f1c0",
+          "haloWidth": 2.5
+        }
+      }
+    },
+    {
+      "name": "Nimistö 0–70",
+      "from": "KarttanimiPiste",
+      "mpp": [
+        0,
+        70
+      ],
+      "having": {
+        "scalerelev": {
+          "gte": 1000000
+        }
+      },
+      "draw": {
+        "text": {
+          "field": "text",
+          "by": "textsize",
+          "size": [
+            [
+              165,
+              8.5
+            ],
+            [
+              210,
+              9
+            ],
+            [
+              240,
+              9.5
+            ],
+            [
+              320,
+              10.5
+            ],
+            [
+              380,
+              11.5
+            ],
+            [
+              480,
+              13
+            ],
+            [
+              720,
+              14
+            ]
+          ],
+          "rank": [
+            "scalerelev",
+            "textsize"
+          ],
+          "oneOf": {
+            "by": "placeid",
+            "on": "language",
+            "prefer": [
+              "fin",
+              "swe",
+              "sme",
+              "smn",
+              "sms"
+            ]
+          },
+          "color": "#7c8580",
+          "halo": "#f7f6f1c0",
+          "haloWidth": 2.5
+        }
+      }
+    }
+  ]
+}
